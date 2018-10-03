@@ -1,10 +1,14 @@
+package com.bowenjin.tokenizer;
+
 import com.bowenjin.regex.Matcher;
+import com.bowenjin.regex.InvalidRegexException;
 
 class TokenMatcher extends Matcher{
   String tokenType;
-  public TokenMatcher(String tokenType, String regex){
+  public TokenMatcher(String tokenType, String regex) throws InvalidRegexException{
     super(regex);
     this.tokenType = tokenType;
+    reset(); //add starting state
   }
   /**
    * Process a single character using the FSA
@@ -12,7 +16,7 @@ class TokenMatcher extends Matcher{
    * @return whether one of the current states of the FSA is the accept state
    * after processing the character.
    */
-  public boolean process(char c){
+  boolean process(char c){
     lambdaClosure();
     transition(c);
     lambdaClosure();
@@ -23,7 +27,7 @@ class TokenMatcher extends Matcher{
    * @return whether the current state of the Matcher can eventually
    * result in a match
    */ 
-  public boolean hasPossibleMatches(){
+  boolean hasPossibleMatches(){
     return currentStates.size() != 0;
   }
   
@@ -31,7 +35,7 @@ class TokenMatcher extends Matcher{
    * @return the String representing the token type associated
    * with this TokenMatcher
    */
-  public String getTokenType(){
+  String getTokenType(){
     return tokenType;
   }  
 }
