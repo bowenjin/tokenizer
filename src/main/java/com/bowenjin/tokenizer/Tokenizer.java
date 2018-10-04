@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import com.bowenjin.regex.InvalidRegexException;
 
 public class Tokenizer{
@@ -19,6 +20,8 @@ public class Tokenizer{
   BufferedReader inputReader;
   int lineNum = 0;
   int colNum = 0;
+  
+  private static final String IGNORE_TOKEN_TYPE = "_ignore";
   public Tokenizer(Map<String, String> tokenTypeToRegexMap, InputStream inputStream) throws IOException, InvalidRegexException{
     int lineNum = 1;
     int colNum = 1;
@@ -31,11 +34,19 @@ public class Tokenizer{
     inputReader = new BufferedReader(new InputStreamReader(inputStream));
   }
 
+  public Tokenizer(Map<String, String> tokenTypeToRegexMap, Set<String> ignoreRegexSet, InputStream inputStream) throws IOException, InvalidRegexException{
+    this(tokenTypeToRegexMap, inputStream);
+    for(String ignoreRegex: ignoreRegexSet){
+      TokenMatcher matcher = new TokenMatcher(IGNORE_TOKEN_TYPE, ignoreRegex);
+      tokenMatchers.add(matcher);
+    }
+  } 
+
   /**
-   * @return the next token tokenized from the input stream
+   * @return the next non-ignore token tokenized from the input stream
    * or null if end of input is reached
    */
-  public Token nextToken() throws IOException{ 
+  public Token nextToken() throws IOException, TokenizerException{ 
     StringBuilder tokenBuilder = new StringBuilder();
     Token lastMatchingToken = null;
     int ci = 0;
@@ -63,16 +74,16 @@ public class Tokenizer{
       }
       if(numPossibleMatches == 0){
         if(lastMatchingToken == null){ 
-          throw new RuntimeException("Could not find a matching token for " + tokenBuilder.toString());
+          throw new TokenizerException("Could not find a matching token for " + tokenBuilder.toString());
         }else{
           backtrack(lastMatchingToken.getLineNumber(), lastMatchingToken.getColumnNumber());
-          return lastMatchingToken;
+          return lastMatchingToken.getTokenType().equals(IGNORE_TOKEN_TYPE) ? nextToken() : lastMatchingToken;
         }
       }
     }
     if(lastMatchingToken != null){
       backtrack(lastMatchingToken.getLineNumber(), lastMatchingToken.getColumnNumber());
-      return lastMatchingToken;
+      return lastMatchingToken.getTokenType().equals(IGNORE_TOKEN_TYPE) ? nextToken() : lastMatchingToken;
     }else{
       return null;
     }
