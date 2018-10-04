@@ -26,4 +26,21 @@ public class TokenizerTest{
     assertEquals("aa", tokenizer.nextToken().getTokenType());
     assertNull(tokenizer.nextToken());
   }
+
+  @Test
+  public void whitespace() throws IOException, InvalidRegexException{
+    Map<String, String> map = new HashMap<>();
+    map.put("space", " ");
+    map.put("tab", "\t");
+    map.put("newline","\n");
+    map.put("return", "\r");
+    String input = " \t\n\r";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    Tokenizer tokenizer = new Tokenizer(map, inputStream);
+   
+    assertEquals("space", tokenizer.nextToken().getTokenType());   
+    assertEquals("tab", tokenizer.nextToken().getTokenType());   
+    assertEquals("newline", tokenizer.nextToken().getTokenType());   
+    assertEquals("return", tokenizer.nextToken().getTokenType());   
+  }
 }
