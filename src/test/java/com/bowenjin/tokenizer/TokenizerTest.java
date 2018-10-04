@@ -89,7 +89,7 @@ public class TokenizerTest{
     map.put("b", "b");
     map.put("c", "c");
     ignoreSet.add(" ");
-    String input = " a b c\n";
+    String input = " a b c \n";
     InputStream inputStream = new ByteArrayInputStream(input.getBytes());
     Tokenizer tokenizer = new Tokenizer(map, ignoreSet, inputStream); 
     assertEquals("a", tokenizer.nextToken().getTokenType());
