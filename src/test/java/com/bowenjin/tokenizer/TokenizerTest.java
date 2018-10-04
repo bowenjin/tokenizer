@@ -97,4 +97,27 @@ public class TokenizerTest{
     assertEquals("c", tokenizer.nextToken().getTokenType());
     tokenizer.nextToken(); //should throw exception
   }
+
+  @Test
+  public void matchMultipleRegex() throws IOException, InvalidRegexException, TokenizerException{
+    Map<String, String> map = new HashMap<>();
+    Set<String> ignoreSet = new HashSet<>();
+    map.put("a", "a*");
+    map.put("b", "b*");
+    map.put("c", "c*");
+    ignoreSet.add("( )*");
+    ignoreSet.add("(\t)*");
+    ignoreSet.add("(\n)*");
+    ignoreSet.add("(\r)*");
+    String input = "abc \t\taa\r\rbb\n\ncc  ";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    Tokenizer tokenizer = new Tokenizer(map, ignoreSet, inputStream); 
+    assertEquals("a", tokenizer.nextToken().getTokenType());
+    assertEquals("b", tokenizer.nextToken().getTokenType());
+    assertEquals("c", tokenizer.nextToken().getTokenType());
+    assertEquals("a", tokenizer.nextToken().getTokenType());
+    assertEquals("b", tokenizer.nextToken().getTokenType());
+    assertEquals("c", tokenizer.nextToken().getTokenType());
+    assertNull(tokenizer.nextToken()); //should throw exception
+  }
 }
