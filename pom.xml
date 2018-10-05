@@ -4,7 +4,7 @@
   <groupId>com.bowenjin.tokenizer</groupId>
   <artifactId>tokenizer</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>tokenizer</name>
   <url>http://maven.apache.org</url>
   <dependencies>
