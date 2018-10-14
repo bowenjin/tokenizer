@@ -1,6 +1,6 @@
 package com.bowenjin.tokenizer;
 
-class Token{
+public class Token{
   private String tokenType;
   private String tokenValue;
   private int lineNum;
