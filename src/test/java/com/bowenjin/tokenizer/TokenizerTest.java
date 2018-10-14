@@ -5,7 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import com.bowenjin.regex.InvalidRegexException;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.HashSet;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNull;
 public class TokenizerTest{
   @Test
   public void longestMatch() throws IOException, InvalidRegexException, TokenizerException{
-    Map<String, String> map = new HashMap<>();
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
     map.put("a", "a");
     map.put("aa", "aa");
     map.put("aaa", "aaa");
@@ -31,7 +31,7 @@ public class TokenizerTest{
 
   @Test
   public void whitespace() throws IOException, InvalidRegexException, TokenizerException{
-    Map<String, String> map = new HashMap<>();
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
     map.put("space", " ");
     map.put("tab", "\t");
     map.put("newline","\n");
@@ -48,7 +48,7 @@ public class TokenizerTest{
 
   @Test
   public void ignoreTokens() throws IOException, InvalidRegexException, TokenizerException{ 
-    Map<String, String> map = new HashMap<>();
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
     Set<String> ignoreSet = new HashSet<>();
     map.put("a", "a");
     map.put("aa", "aa");
@@ -62,7 +62,7 @@ public class TokenizerTest{
 
   @Test
   public void words() throws IOException, InvalidRegexException, TokenizerException{
-    Map<String, String> map = new HashMap<>();
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
     Set<String> ignoreSet = new HashSet<>();
     map.put("apple", "apple");
     map.put("banana", "banana");
@@ -83,7 +83,7 @@ public class TokenizerTest{
 
   @Test(expected=TokenizerException.class)
   public void doesThrowTokenizerException() throws IOException, InvalidRegexException, TokenizerException{
-    Map<String, String> map = new HashMap<>();
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
     Set<String> ignoreSet = new HashSet<>();
     map.put("a", "a");
     map.put("b", "b");
@@ -100,7 +100,7 @@ public class TokenizerTest{
 
   @Test
   public void matchMultipleRegex() throws IOException, InvalidRegexException, TokenizerException{
-    Map<String, String> map = new HashMap<>();
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
     Set<String> ignoreSet = new HashSet<>();
     map.put("a", "a*");
     map.put("b", "b*");

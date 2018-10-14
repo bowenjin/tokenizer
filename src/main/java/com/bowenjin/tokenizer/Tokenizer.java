@@ -1,18 +1,25 @@
 package com.bowenjin.tokenizer;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Queue;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+
 import com.bowenjin.regex.InvalidRegexException;
 
+/**
+ * Creates tokens of different types from a character stream
+ * based on regex descriptions of those tokens
+ */
 public class Tokenizer{
   List<TokenMatcher> tokenMatchers = new ArrayList<>();
   Queue<Character> backtrackBuffer = new LinkedList<>();
@@ -22,7 +29,16 @@ public class Tokenizer{
   int colNum = 0;
   
   private static final String IGNORE_TOKEN_TYPE = "_ignore";
-  public Tokenizer(Map<String, String> tokenTypeToRegexMap, InputStream inputStream) throws IOException, InvalidRegexException{
+  
+  /**
+   * @param tokenTypeToRegexMap a LinkedHashMap of token types to regex patterns that describe
+   * those token types, order of insertion matters for resolving tokens when the regex patterns match
+   * character sequences of the same length, in which case the token that appears first in the Map will
+   * be the one resolved
+   * @param ignoreRegexSet a Set of regex patterns describing tokens to ignore (not return)
+   * @param inputStream a stream of characters to tokenize
+   */
+  public Tokenizer(LinkedHashMap<String, String> tokenTypeToRegexMap, InputStream inputStream) throws IOException, InvalidRegexException{
     int lineNum = 1;
     int colNum = 1;
     for(Map.Entry<String, String> entry: tokenTypeToRegexMap.entrySet()){
@@ -31,10 +47,12 @@ public class Tokenizer{
       TokenMatcher matcher = new TokenMatcher(tokenType, regex);
       tokenMatchers.add(matcher);      
     }
+    Collections.reverse(tokenMatchers); //reverse order of insertion, initially first inserted element has highest priority,
+                                        //now the first element has the lowest priority.                      
     inputReader = new BufferedReader(new InputStreamReader(inputStream));
   }
 
-  public Tokenizer(Map<String, String> tokenTypeToRegexMap, Set<String> ignoreRegexSet, InputStream inputStream) throws IOException, InvalidRegexException{
+  public Tokenizer(LinkedHashMap<String, String> tokenTypeToRegexMap, Set<String> ignoreRegexSet, InputStream inputStream) throws IOException, InvalidRegexException{
     this(tokenTypeToRegexMap, inputStream);
     for(String ignoreRegex: ignoreRegexSet){
       TokenMatcher matcher = new TokenMatcher(IGNORE_TOKEN_TYPE, ignoreRegex);
@@ -44,7 +62,8 @@ public class Tokenizer{
 
   /**
    * @return the next non-ignore token tokenized from the input stream
-   * or null if end of input is reached
+   * or null if end of input is reached, always returns the longest possible
+   * match for a token
    */
   public Token nextToken() throws IOException, TokenizerException{ 
     StringBuilder tokenBuilder = new StringBuilder();
@@ -59,8 +78,8 @@ public class Tokenizer{
         colNum = 1;
       }else{
         colNum++;
-      } 
-      int numPossibleMatches = 0;
+      }
+      boolean hasPossibleMatches = false; //have all NFAs reached dead ends? 
       for(TokenMatcher tokenMatcher: tokenMatchers){
         if(tokenMatcher.process(c)){
           String tokenType = tokenMatcher.getTokenType();
@@ -69,10 +88,10 @@ public class Tokenizer{
           lastMatchingToken = new Token(tokenType, tokenValue, lineNum, colNum);
         }
         if(tokenMatcher.hasPossibleMatches()){
-          numPossibleMatches++;
+          hasPossibleMatches = true; 
         }
       }
-      if(numPossibleMatches == 0){
+      if(!hasPossibleMatches){
         if(lastMatchingToken == null){ 
           throw new TokenizerException("Could not find a matching token for " + tokenBuilder.toString());
         }else{
