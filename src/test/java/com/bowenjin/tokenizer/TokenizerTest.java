@@ -120,4 +120,26 @@ public class TokenizerTest{
     assertEquals("c", tokenizer.nextToken().getTokenType());
     assertNull(tokenizer.nextToken()); //should throw exception
   }
+
+  @Test
+  public void sameLengthMatchPriority() throws IOException, InvalidRegexException, TokenizerException{
+    LinkedHashMap<String, String> map = new LinkedHashMap<>();
+    Set<String> ignoreSet = new HashSet<>();
+    map.put("PRINT", "print");
+    map.put("IDENTIFIER", "[a-zA-Z_][a-zA-Z0-9_]*");
+    String input = "print";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    Tokenizer tokenizer = new Tokenizer(map, ignoreSet, inputStream);
+    assertEquals("PRINT", tokenizer.nextToken().getTokenType()); 
+ 
+     
+    map = new LinkedHashMap<>();
+    ignoreSet = new HashSet<>();
+    map.put("IDENTIFIER", "[a-zA-Z_][a-zA-Z0-9_]*");
+    map.put("PRINT", "print");
+    input = "print";
+    inputStream = new ByteArrayInputStream(input.getBytes());
+    tokenizer = new Tokenizer(map, ignoreSet, inputStream);
+    assertEquals("IDENTIFIER", tokenizer.nextToken().getTokenType()); 
+  }
 }
